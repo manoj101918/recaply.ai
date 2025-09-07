@@ -1,0 +1,29 @@
+# Core FastAPI stack
+fastapi
+uvicorn
+pydantic
+python-multipart
+
+# AI/ML Dependencies  
+groq
+httpx
+
+# Audio processing (optimized)
+pydub
+soundfile
+
+# System utilities
+python-dotenv
+aiofiles
+
+# Optional performance enhancements
+# Uncomment for production deployment
+gunicorn
+redis  # Unix only - faster event loop
+httptools  # Faster HTTP parsing
+
+# Development tools (install with pip install -e .[dev])
+# pytest==7.4.3
+# pytest-asyncio==0.21.1
+# black==23.11.0
+# isort==5.12.0

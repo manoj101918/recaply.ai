@@ -1,0 +1,49 @@
+2025-09-07 19:43:23,433 - app - INFO - 🚀 Starting Nova.AI Backend v2.1.0...
+2025-09-07 19:43:24,069 - app - ERROR - ❌ Groq initialization failed: GROQ_API_KEY not found in environment
+2025-09-07 19:43:24,069 - app - ERROR - ❌ Startup failed: GROQ_API_KEY not found in environment
+2025-09-07 19:52:59,649 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 19:57:13,773 - app - INFO -  Starting Nova.AI Backend v2.1.0...
+2025-09-07 19:57:14,455 - app - ERROR -  Groq initialization failed: GROQ_API_KEY not found in environment
+2025-09-07 19:57:14,456 - app - ERROR -  Startup failed: GROQ_API_KEY not found in environment
+2025-09-07 20:00:00,309 - app - INFO -  Starting Nova.AI Backend v2.1.0...
+2025-09-07 20:00:00,946 - app - ERROR -  Groq initialization failed: GROQ_API_KEY not found in environment
+2025-09-07 20:00:00,947 - app - ERROR -  Startup failed: GROQ_API_KEY not found in environment
+2025-09-07 20:02:08,035 - app - INFO -  Starting Nova.AI Backend v2.1.0...
+2025-09-07 20:02:08,747 - app - ERROR -  Groq initialization failed: GROQ_API_KEY not found in environment
+2025-09-07 20:02:08,747 - app - ERROR -  Startup failed: GROQ_API_KEY not found in environment
+2025-09-07 20:05:05,555 - app - INFO -  Shutting down Nova.AI Backend...
+2025-09-07 20:05:05,556 - app - INFO -  Shutdown complete
+2025-09-07 20:05:07,016 - app - INFO -  Starting Nova.AI Backend v2.1.0...
+2025-09-07 20:05:08,945 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 20:05:08,958 - app - INFO -  Groq client initialized and tested successfully
+2025-09-07 20:05:08,960 - app - INFO -  Backend initialized successfully in 1.94s
+2025-09-07 20:09:15,228 - app - WARNING - Conversion failed: No module named 'pyaudioop', using original
+2025-09-07 20:09:21,885 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/audio/transcriptions "HTTP/1.1 200 OK"
+2025-09-07 20:09:21,889 - app - INFO -  Transcription completed in 6.80s
+2025-09-07 20:09:46,307 - app - INFO -  Generating response suggestion for 626 characters
+2025-09-07 20:09:47,001 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 20:09:47,007 - app - INFO -  Response suggestion generated in 0.70s
+2025-09-07 20:10:01,203 - app - INFO -  Generating response suggestion for 626 characters
+2025-09-07 20:10:02,017 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 20:10:02,047 - app - INFO -  Response suggestion generated in 0.84s
+2025-09-07 20:10:06,637 - app - INFO -  Generating response suggestion for 626 characters
+2025-09-07 20:10:07,340 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 20:10:07,346 - app - INFO -  Response suggestion generated in 0.71s
+2025-09-07 20:11:04,859 - app - WARNING - Conversion failed: No module named 'pyaudioop', using original
+2025-09-07 20:11:06,103 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/audio/transcriptions "HTTP/1.1 200 OK"
+2025-09-07 20:11:06,105 - app - INFO -  Transcription completed in 1.97s
+2025-09-07 20:11:16,826 - app - INFO -  Generating response suggestion for 869 characters
+2025-09-07 20:11:17,702 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 20:11:17,705 - app - INFO -  Response suggestion generated in 0.88s
+2025-09-07 20:11:25,309 - app - INFO -  Generating response suggestion for 869 characters
+2025-09-07 20:11:26,168 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 20:11:26,170 - app - INFO -  Response suggestion generated in 0.86s
+2025-09-07 20:11:42,432 - app - INFO -  Generating response suggestion for 869 characters
+2025-09-07 20:11:43,271 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 20:11:43,273 - app - INFO -  Response suggestion generated in 0.84s
+2025-09-07 20:11:46,232 - app - INFO -  Generating summary for 869 characters
+2025-09-07 20:11:47,255 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-07 20:11:47,264 - app - INFO -  Summary generated in 1.03s
+2025-09-07 20:12:07,761 - app - WARNING - Conversion failed: No module named 'pyaudioop', using original
+2025-09-07 20:12:09,409 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/audio/transcriptions "HTTP/1.1 200 OK"
+2025-09-07 20:12:09,411 - app - INFO -  Transcription completed in 1.72s

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recaply.AI - Meeting Transcription & AI Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    <h1>Recaply.AI</h1>
+                    <span class="version">v2.1.0</span>
+                </div>
+                <div class="status-indicators">
+                    <div class="status-item" id="connection-status">
+                        <i class="fas fa-circle"></i>
+                        <span>Connecting...</span>
+                    </div>
+                    <div class="status-item" id="openai-status">
+                        <i class="fas fa-brain"></i>
+                        <span>OpenAI</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Control Panel -->
+            <section class="control-panel">
+                <div class="section-header">
+                    <h2><i class="fas fa-sliders-h"></i> Control Panel</h2>
+                </div>
+                
+                <div class="controls-grid">
+                    <!-- Audio Input -->
+                    <div class="control-group">
+                        <label for="microphone-select">
+                            <i class="fas fa-microphone"></i> Microphone
+                        </label>
+                        <select id="microphone-select" class="form-control">
+                            <option value="">Detecting microphones...</option>
+                        </select>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="control-group">
+                        <label for="audio-file">
+                            <i class="fas fa-file-audio"></i> Upload Audio
+                        </label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="audio-file" accept="audio/*" class="file-input">
+                            <label for="audio-file" class="file-upload-btn">
+                                <i class="fas fa-upload"></i>
+                                Choose File
+                            </label>
+                            <span class="file-name" id="file-name">No file chosen</span>
+                        </div>
+                    </div>
+
+                    <!-- Recording Controls -->
+                    <div class="control-group recording-controls">
+                        <button id="start-recording" class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            Start Recording
+                        </button>
+                        <button id="stop-recording" class="btn btn-danger" disabled>
+                            <i class="fas fa-stop"></i>
+                            Stop Recording
+                        </button>
+                        <button id="transcribe-file" class="btn btn-secondary" disabled>
+                            <i class="fas fa-file-alt"></i>
+                            Transcribe File
+                        </button>
+                    </div>
+
+                    <!-- Recording Status -->
+                    <div class="recording-status" id="recording-status">
+                        <div class="status-indicator">
+                            <i class="fas fa-circle"></i>
+                            <span>Ready</span>
+                        </div>
+                        <div class="recording-timer" id="recording-timer">00:00</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Dashboard -->
+            <div class="dashboard-grid">
+                <!-- Transcription Section -->
+                <section class="transcription-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-file-alt"></i> Live Transcription</h2>
+                        <div class="section-actions">
+                            <button id="clear-transcript" class="btn btn-outline">
+                                <i class="fas fa-trash"></i>
+                                Clear
+                            </button>
+                            <button id="export-transcript" class="btn btn-outline">
+                                <i class="fas fa-download"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="transcription-content">
+                        <div class="transcript-display" id="transcript-display">
+                            <div class="placeholder">
+                                <i class="fas fa-microphone-alt"></i>
+                                <p>Start recording or upload an audio file to begin transcription</p>
+                            </div>
+                        </div>
+                        
+                        <div class="transcription-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Words:</span>
+                                <span class="stat-value" id="word-count">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Processing:</span>
+                                <span class="stat-value" id="processing-time">0.00s</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Confidence:</span>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" id="confidence-fill"></div>
+                                    <span class="confidence-text" id="confidence-text">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AI Assistant Section -->
+                <section class="ai-assistant-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-robot"></i> AI Assistant</h2>
+                        <div class="ai-status" id="ai-status">
+                            <i class="fas fa-circle"></i>
+                            <span>Ready</span>
+                        </div>
+                    </div>
+
+                    <div class="ai-tabs">
+                        <button class="tab-btn active" data-tab="summary">
+                            <i class="fas fa-list"></i>
+                            Summary
+                        </button>
+                        <button class="tab-btn" data-tab="suggestions">
+                            <i class="fas fa-lightbulb"></i>
+                            Suggestions
+                        </button>
+                    </div>
+
+                    <!-- Summary Tab -->
+                    <div class="ai-content" id="summary-tab">
+                        <div class="summary-display" id="summary-display">
+                            <div class="placeholder">
+                                <i class="fas fa-magic"></i>
+                                <p>AI-powered summary will appear here after transcription</p>
+                            </div>
+                        </div>
+
+                        <div class="summary-sections" id="summary-sections" style="display: none;">
+                            <div class="summary-section">
+                                <h4><i class="fas fa-clipboard-list"></i> Overview</h4>
+                                <div class="summary-overview" id="summary-overview"></div>
+                            </div>
+                            
+                            <div class="summary-section">
+                                <h4><i class="fas fa-key"></i> Key Points</h4>
+                                <ul class="key-points-list" id="key-points-list"></ul>
+                            </div>
+                            
+                            <div class="summary-section">
+                                <h4><i class="fas fa-tasks"></i> Action Items</h4>
+                                <ul class="action-items-list" id="action-items-list"></ul>
+                            </div>
+                        </div>
+
+                        <button id="generate-summary" class="btn btn-primary" style="margin-top: 1rem;" disabled>
+                            <i class="fas fa-magic"></i>
+                            Generate Summary
+                        </button>
+                    </div>
+
+                    <!-- Suggestions Tab -->
+                    <div class="ai-content" id="suggestions-tab" style="display: none;">
+                        <div class="suggestions-display" id="suggestions-display">
+                            <div class="placeholder">
+                                <i class="fas fa-comments"></i>
+                                <p>Smart response suggestions will appear here</p>
+                            </div>
+                        </div>
+
+                        <button id="get-suggestions" class="btn btn-primary" style="margin-top: 1rem;" disabled>
+                            <i class="fas fa-lightbulb"></i>
+                            Get Suggestions
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- System Health Section -->
+            <section class="system-health">
+                <div class="section-header">
+                    <h2><i class="fas fa-heartbeat"></i> System Health</h2>
+                    <button id="refresh-health" class="btn btn-outline btn-sm">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="health-grid">
+                    <div class="health-card">
+                        <div class="health-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="health-info">
+                            <h4>Backend Status</h4>
+                            <span class="health-status" id="backend-health">Checking...</span>
+                        </div>
+                    </div>
+
+                    <div class="health-card">
+                        <div class="health-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="health-info">
+                            <h4>OpenAI Models</h4>
+                            <span class="health-status" id="models-health">Checking...</span>
+                        </div>
+                    </div>
+
+                    <div class="health-card">
+                        <div class="health-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="health-info">
+                            <h4>Uptime</h4>
+                            <span class="health-status" id="uptime-display">0:00:00</span>
+                        </div>
+                    </div>
+
+                    <div class="health-card">
+                        <div class="health-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="health-info">
+                            <h4>Performance</h4>
+                            <span class="health-status" id="performance-display">Good</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <p>&copy; 2025 recaply.AI Desktop Widget</p>
+                </div>
+                <div class="footer-section">
+                    <div class="footer-stats">
+                        <span>Chunks Processed: <strong id="chunks-processed">0</strong></span>
+                        <span>Total Words: <strong id="total-words">0</strong></span>
+                        <span>Session Time: <strong id="session-time">00:00:00</strong></span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Processing...</h3>
+            <p id="loading-message">Initializing Recaply.AI...</p>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
