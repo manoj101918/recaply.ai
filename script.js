@@ -1,7 +1,7 @@
 // Nova.AI Desktop Interface JavaScript
 class NovaAI {
     constructor() {
-        this.apiBaseUrl = 'http://localhost:8000';
+        this.apiBaseUrl =  "https://recaply-ai.onrender.com";
         this.isRecording = false;
         this.mediaRecorder = null;
         this.audioChunks = [];
