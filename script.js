@@ -1,7 +1,7 @@
 // Nova.AI Desktop Interface JavaScript
 class NovaAI {
     constructor() {
-        this.apiBaseUrl =  "https://recaply-ai.onrender.com";
+        this.apiBaseUrl = 'http://localhost:8000';
         this.isRecording = false;
         this.mediaRecorder = null;
         this.audioChunks = [];
@@ -24,8 +24,8 @@ class NovaAI {
             // Setup event listeners
             this.setupEventListeners();
             
-            // Initialize microphones
-            await this.initializeMicrophones();
+            // Initialize system audio
+            await this.initializeSystemAudio();
             
             // Check backend health
             await this.checkBackendHealth();
@@ -77,6 +77,32 @@ class NovaAI {
                 this.closeToast(e.target.closest('.toast'));
             }
         });
+    }
+
+    async initializeSystemAudio() {
+        try {
+            // Check if getDisplayMedia is supported
+            if (!navigator.mediaDevices.getDisplayMedia) {
+                throw new Error('System audio capture not supported in this browser');
+            }
+            
+            const audioSelect = document.getElementById('microphone-select');
+            audioSelect.innerHTML = '';
+            
+            // Add system audio option
+            const option = document.createElement('option');
+            option.value = 'system-audio';
+            option.textContent = 'System Audio (Desktop Audio)';
+            audioSelect.appendChild(option);
+            
+            this.updateConnectionStatus('connected', 'System audio capture ready');
+            
+        } catch (error) {
+            console.error('System audio initialization error:', error);
+            this.updateConnectionStatus('error', 'System audio capture not supported');
+            document.getElementById('microphone-select').innerHTML = 
+                '<option value="">System audio capture not available</option>';
+        }
     }
 
     async initializeMicrophones() {
@@ -236,25 +262,41 @@ class NovaAI {
 
     async startRecording() {
         try {
-            const micSelect = document.getElementById('microphone-select');
-            const deviceId = micSelect.value;
+            const audioSelect = document.getElementById('microphone-select');
+            const selectedOption = audioSelect.value;
             
-            if (!deviceId) {
-                this.showToast('warning', 'No Microphone', 'Please select a microphone first');
+            if (!selectedOption) {
+                this.showToast('warning', 'No Audio Source', 'Please select an audio source first');
                 return;
             }
             
-            const constraints = {
-                audio: {
-                    deviceId: deviceId ? { exact: deviceId } : undefined,
-                    sampleRate: 16000,
-                    channelCount: 1,
-                    echoCancellation: true,
-                    noiseSuppression: true
-                }
-            };
+            let stream;
             
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            if (selectedOption === 'system-audio') {
+                // Capture system audio using getDisplayMedia
+                stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: false,
+                    audio: {
+                        sampleRate: 16000,
+                        channelCount: 1,
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                });
+            } else {
+                // Fallback to microphone if needed
+                const constraints = {
+                    audio: {
+                        deviceId: selectedOption ? { exact: selectedOption } : undefined,
+                        sampleRate: 16000,
+                        channelCount: 1,
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    }
+                };
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+            }
             
             this.mediaRecorder = new MediaRecorder(stream, {
                 mimeType: 'audio/webm;codecs=opus'
@@ -281,7 +323,7 @@ class NovaAI {
             this.updateRecordingUI(true);
             this.startRecordingTimer();
             
-            this.showToast('success', 'Recording Started', 'Capturing audio...');
+            this.showToast('success', 'Recording Started', selectedOption === 'system-audio' ? 'Capturing system audio...' : 'Capturing audio...');
             
         } catch (error) {
             console.error('Recording start error:', error);
