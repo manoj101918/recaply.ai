@@ -1,4 +1,4 @@
-// Nova.AI Desktop Interface JavaScript
+Nova.AI Desktop Interface JavaScript
 class NovaAI {
     constructor() {
         this.apiBaseUrl = "https://recaply-ai.onrender.com";
@@ -24,8 +24,8 @@ class NovaAI {
             // Setup event listeners
             this.setupEventListeners();
             
-            // Initialize system audio
-            await this.initializeSystemAudio();
+            // Initialize microphones
+            await this.initializeMicrophones();
             
             // Check backend health
             await this.checkBackendHealth();
@@ -79,32 +79,6 @@ class NovaAI {
         });
     }
 
-    async initializeSystemAudio() {
-        try {
-            // Check if getDisplayMedia is supported
-            if (!navigator.mediaDevices.getDisplayMedia) {
-                throw new Error('System audio capture not supported in this browser');
-            }
-            
-            const audioSelect = document.getElementById('microphone-select');
-            audioSelect.innerHTML = '';
-            
-            // Add system audio option
-            const option = document.createElement('option');
-            option.value = 'system-audio';
-            option.textContent = 'System Audio (Desktop Audio)';
-            audioSelect.appendChild(option);
-            
-            this.updateConnectionStatus('connected', 'System audio capture ready');
-            
-        } catch (error) {
-            console.error('System audio initialization error:', error);
-            this.updateConnectionStatus('error', 'System audio capture not supported');
-            document.getElementById('microphone-select').innerHTML = 
-                '<option value="">System audio capture not available</option>';
-        }
-    }
-
     async initializeMicrophones() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -122,7 +96,7 @@ class NovaAI {
             audioDevices.forEach((device, index) => {
                 const option = document.createElement('option');
                 option.value = device.deviceId;
-                option.textContent = device.label || `Microphone ${index + 1}`;
+                option.textContent = device.label || Microphone ${index + 1};
                 micSelect.appendChild(option);
             });
             
@@ -141,7 +115,7 @@ class NovaAI {
 
     async checkBackendHealth() {
         try {
-            const response = await fetch(`${this.apiBaseUrl}/health`);
+            const response = await fetch(${this.apiBaseUrl}/health);
             const health = await response.json();
             
             // Update connection status
@@ -149,7 +123,7 @@ class NovaAI {
                 this.updateConnectionStatus('connected', 'Connected to backend');
                 this.updateOpenAIStatus('connected', 'OpenAI Ready');
             } else {
-                this.updateConnectionStatus('warning', `Backend: ${health.status}`);
+                this.updateConnectionStatus('warning', Backend: ${health.status});
                 this.updateOpenAIStatus('warning', health.message);
             }
             
@@ -202,7 +176,7 @@ class NovaAI {
         // Backend status
         const backendHealth = document.getElementById('backend-health');
         backendHealth.textContent = health.status.charAt(0).toUpperCase() + health.status.slice(1);
-        backendHealth.className = `health-status ${health.status === 'healthy' ? '' : health.status}`;
+        backendHealth.className = health-status ${health.status === 'healthy' ? '' : health.status};
         
         // Models status
         const modelsHealth = document.getElementById('models-health');
@@ -211,8 +185,8 @@ class NovaAI {
         const totalCount = Object.keys(modelsLoaded).length;
         
         if (totalCount > 0) {
-            modelsHealth.textContent = `${loadedCount}/${totalCount} Ready`;
-            modelsHealth.className = `health-status ${loadedCount === totalCount ? '' : 'warning'}`;
+            modelsHealth.textContent = ${loadedCount}/${totalCount} Ready;
+            modelsHealth.className = health-status ${loadedCount === totalCount ? '' : 'warning'};
         } else {
             modelsHealth.textContent = 'Unknown';
             modelsHealth.className = 'health-status warning';
@@ -241,7 +215,7 @@ class NovaAI {
         const minutes = Math.floor((seconds % 3600) / 60);
         const secs = Math.floor(seconds % 60);
         
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        return ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')};
     }
 
     startHealthMonitoring() {
@@ -262,41 +236,25 @@ class NovaAI {
 
     async startRecording() {
         try {
-            const audioSelect = document.getElementById('microphone-select');
-            const selectedOption = audioSelect.value;
+            const micSelect = document.getElementById('microphone-select');
+            const deviceId = micSelect.value;
             
-            if (!selectedOption) {
-                this.showToast('warning', 'No Audio Source', 'Please select an audio source first');
+            if (!deviceId) {
+                this.showToast('warning', 'No Microphone', 'Please select a microphone first');
                 return;
             }
             
-            let stream;
+            const constraints = {
+                audio: {
+                    deviceId: deviceId ? { exact: deviceId } : undefined,
+                    sampleRate: 16000,
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
+            };
             
-            if (selectedOption === 'system-audio') {
-                // Capture system audio using getDisplayMedia
-                stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: false,
-                    audio: {
-                        sampleRate: 16000,
-                        channelCount: 1,
-                        echoCancellation: false,
-                        noiseSuppression: false,
-                        autoGainControl: false
-                    }
-                });
-            } else {
-                // Fallback to microphone if needed
-                const constraints = {
-                    audio: {
-                        deviceId: selectedOption ? { exact: selectedOption } : undefined,
-                        sampleRate: 16000,
-                        channelCount: 1,
-                        echoCancellation: true,
-                        noiseSuppression: true
-                    }
-                };
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
-            }
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
             
             this.mediaRecorder = new MediaRecorder(stream, {
                 mimeType: 'audio/webm;codecs=opus'
@@ -323,7 +281,7 @@ class NovaAI {
             this.updateRecordingUI(true);
             this.startRecordingTimer();
             
-            this.showToast('success', 'Recording Started', selectedOption === 'system-audio' ? 'Capturing system audio...' : 'Capturing audio...');
+            this.showToast('success', 'Recording Started', 'Capturing audio...');
             
         } catch (error) {
             console.error('Recording start error:', error);
@@ -370,7 +328,7 @@ class NovaAI {
                 const minutes = Math.floor(elapsed / 60);
                 const seconds = elapsed % 60;
                 document.getElementById('recording-timer').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')};
             }
         }, 1000);
     }
@@ -402,7 +360,7 @@ class NovaAI {
         const transcribeBtn = document.getElementById('transcribe-file');
         
         if (file) {
-            fileNameSpan.textContent = `${file.name} (${this.formatFileSize(file.size)})`;
+            fileNameSpan.textContent = ${file.name} (${this.formatFileSize(file.size)});
             transcribeBtn.disabled = false;
         } else {
             fileNameSpan.textContent = 'No file chosen';
@@ -437,7 +395,7 @@ class NovaAI {
             const formData = new FormData();
             formData.append('audio', audioBlob, 'audio.webm');
             
-            const response = await fetch(`${this.apiBaseUrl}/transcribe`, {
+            const response = await fetch(${this.apiBaseUrl}/transcribe, {
                 method: 'POST',
                 body: formData
             });
@@ -456,7 +414,7 @@ class NovaAI {
             
             this.hideLoading();
             this.showToast('success', 'Transcription Complete', 
-                `Processed in ${result.processing_time.toFixed(2)}s`);
+                Processed in ${result.processing_time.toFixed(2)}s);
             
         } catch (error) {
             console.error('Transcription error:', error);
@@ -506,15 +464,15 @@ class NovaAI {
         document.getElementById('word-count').textContent = wordCount;
         
         // Processing time
-        document.getElementById('processing-time').textContent = `${result.processing_time.toFixed(2)}s`;
+        document.getElementById('processing-time').textContent = ${result.processing_time.toFixed(2)}s;
         
         // Confidence
         const confidence = Math.round((result.confidence || 0) * 100);
         const confidenceFill = document.getElementById('confidence-fill');
         const confidenceText = document.getElementById('confidence-text');
         
-        confidenceFill.style.width = `${confidence}%`;
-        confidenceText.textContent = `${confidence}%`;
+        confidenceFill.style.width = ${confidence}%;
+        confidenceText.textContent = ${confidence}%;
     }
 
     updateStatsDisplay() {
@@ -539,7 +497,7 @@ class NovaAI {
         this.showLoading('Generating AI summary...');
         
         try {
-            const response = await fetch(`${this.apiBaseUrl}/summarize`, {
+            const response = await fetch(${this.apiBaseUrl}/summarize, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -559,7 +517,7 @@ class NovaAI {
             
             this.hideLoading();
             this.showToast('success', 'Summary Generated', 
-                `Processed in ${result.processing_time.toFixed(2)}s`);
+                Processed in ${result.processing_time.toFixed(2)}s);
             
         } catch (error) {
             console.error('Summary generation error:', error);
@@ -634,7 +592,7 @@ class NovaAI {
         this.showLoading('Generating response suggestions...');
         
         try {
-            const response = await fetch(`${this.apiBaseUrl}/suggest_response`, {
+            const response = await fetch(${this.apiBaseUrl}/suggest_response, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -654,7 +612,7 @@ class NovaAI {
             
             this.hideLoading();
             this.showToast('success', 'Suggestions Ready', 
-                `Generated in ${result.processing_time.toFixed(2)}s`);
+                Generated in ${result.processing_time.toFixed(2)}s);
             
         } catch (error) {
             console.error('Suggestions error:', error);
@@ -678,7 +636,7 @@ class NovaAI {
         
         const context = document.createElement('div');
         context.className = 'suggestion-context';
-        context.textContent = `Context: ${result.context_identified || 'General response'}`;
+        context.textContent = Context: ${result.context_identified || 'General response'};
         
         const suggestion = document.createElement('div');
         suggestion.className = 'suggestion-text';
@@ -686,7 +644,7 @@ class NovaAI {
         
         const confidence = document.createElement('div');
         confidence.className = 'suggestion-confidence';
-        confidence.textContent = `Confidence: ${result.confidence || 'Medium'}`;
+        confidence.textContent = Confidence: ${result.confidence || 'Medium'};
         
         suggestionItem.appendChild(context);
         suggestionItem.appendChild(suggestion);
@@ -707,13 +665,13 @@ class NovaAI {
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        document.querySelector([data-tab="${tabName}"]).classList.add('active');
         
         // Update tab content
         document.querySelectorAll('.ai-content').forEach(content => {
             content.style.display = 'none';
         });
-        document.getElementById(`${tabName}-tab`).style.display = 'block';
+        document.getElementById(${tabName}-tab).style.display = 'block';
     }
 
     clearTranscript() {
@@ -780,17 +738,17 @@ class NovaAI {
         
         // Get additional info
         const chunks = transcriptDisplay.querySelectorAll('.transcript-chunk');
-        let exportContent = `Nova.AI Transcript Export\n`;
-        exportContent += `Generated: ${new Date().toLocaleString()}\n`;
-        exportContent += `Total Chunks: ${chunks.length}\n`;
-        exportContent += `Total Words: ${this.stats.totalWords}\n`;
-        exportContent += `\n${'='.repeat(50)}\n\n`;
+        let exportContent = Nova.AI Transcript Export\n;
+        exportContent += Generated: ${new Date().toLocaleString()}\n;
+        exportContent += Total Chunks: ${chunks.length}\n;
+        exportContent += Total Words: ${this.stats.totalWords}\n;
+        exportContent += \n${'='.repeat(50)}\n\n;
         
         // Add timestamped content
         chunks.forEach(chunk => {
             const timestamp = chunk.querySelector('.chunk-timestamp').textContent;
             const text = chunk.querySelector('.chunk-text').textContent;
-            exportContent += `[${timestamp}] ${text}\n\n`;
+            exportContent += [${timestamp}] ${text}\n\n;
         });
         
         // Create and download file
@@ -798,7 +756,7 @@ class NovaAI {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `nova-ai-transcript-${new Date().toISOString().split('T')[0]}.txt`;
+        a.download = nova-ai-transcript-${new Date().toISOString().split('T')[0]}.txt;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -872,7 +830,7 @@ class NovaAI {
         const container = document.getElementById('toast-container');
         
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
+        toast.className = toast ${type};
         
         const iconMap = {
             success: 'fas fa-check-circle',
@@ -914,7 +872,7 @@ class NovaAI {
     // Utility method for API configuration
     setApiBaseUrl(url) {
         this.apiBaseUrl = url;
-        this.showToast('info', 'API Updated', `Backend URL set to ${url}`);
+        this.showToast('info', 'API Updated', Backend URL set to ${url});
     }
 }
 
@@ -960,4 +918,3 @@ window.addEventListener('beforeunload', (event) => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = NovaAI;
 }
-
