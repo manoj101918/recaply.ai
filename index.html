@@ -3,293 +3,1166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recaply.AI - Meeting Transcription & AI Assistant</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <title>Recaply.AI Web Interface v2.1</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1b3e;
+            --bg-tertiary: #262651;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 198, 255, 0.3) 0%, transparent 50%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--glass-bg);
+            border-radius: 24px;
+            padding: 32px;
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 200px rgba(120, 119, 198, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 2px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            font-weight: 400;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-dot.disconnected {
+            background: var(--error);
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+        }
+
+        .main-status {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .main-status.status-ready {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .main-status.status-recording {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .main-status.status-processing {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            position: relative;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+            color: white;
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 24px;
+            margin-bottom: 32px;
+            align-items: end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .input-group label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-group select {
+            padding: 16px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-group:hover {
+            border-color: var(--primary);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-group label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .progress-container {
+            margin: 24px 0;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .progress-indeterminate {
+            animation: progress-slide 2s infinite linear;
+        }
+
+        @keyframes progress-slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .wave-visualization {
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            margin: 24px 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .wave-visualization::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+        }
+
+        .wave-bars {
+            display: flex;
+            align-items: end;
+            gap: 4px;
+            height: 50px;
+            z-index: 1;
+        }
+
+        .wave-bar {
+            width: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 2px;
+            transition: height 0.2s ease;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 28px;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h3::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .card-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .transcript-area {
+            min-height: 280px;
+        }
+
+        .suggestion-card {
+            grid-column: 1 / -1;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 32px 20px;
+            border-top: 1px solid var(--border);
+            margin-top: 48px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                border-radius: 16px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-rocket"></i>
-                    <h1>Recaply.AI</h1>
-                    <span class="version">v2.1.0</span>
-                </div>
-                <div class="status-indicators">
-                    <div class="status-item" id="connection-status">
-                        <i class="fas fa-circle"></i>
-                        <span>Connecting...</span>
-                    </div>
-                    <div class="status-item" id="openai-status">
-                        <i class="fas fa-brain"></i>
-                        <span>OpenAI</span>
-                    </div>
-                </div>
+        <div class="header">
+            <h1>Recaply.AI</h1>
+            <p>Real-time Meeting Transcription & AI Analysis - Powered by Groq</p>
+        </div>
+
+        <div class="alert alert-error" id="errorMessage"></div>
+        <div class="alert alert-success" id="successMessage"></div>
+
+        <div class="status-header">
+            <div class="connection-status">
+                <div class="status-dot" id="connectionDot"></div>
+                <span id="connectionStatus">Checking connection...</span>
             </div>
-        </header>
+            <span class="main-status status-ready" id="mainStatus">Ready</span>
+        </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Control Panel -->
-            <section class="control-panel">
-                <div class="section-header">
-                    <h2><i class="fas fa-sliders-h"></i> Control Panel</h2>
+        <div class="control-panel">
+            <button class="btn btn-start" id="recordButton">Start Recording</button>
+            <button class="btn btn-clear" id="clearButton">Clear All</button>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="micSelect">Select Microphone (optional)</label>
+                <select id="micSelect">
+                    <option value="">Loading devices...</option>
+                </select>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="captureSystem">
+                <label for="captureSystem">Capture speaker audio (via screen/tab share)</label>
+            </div>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="wave-visualization" id="waveVisualization">
+            <div class="wave-bars" id="waveBars"></div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Live Transcription</h3>
+                    <span class="card-meta" id="chunkCounter">Chunks: 0</span>
                 </div>
-                
-                <div class="controls-grid">
-                    <!-- Audio Input -->
-                    <div class="control-group">
-                        <label for="microphone-select">
-                            <i class="fas fa-microphone"></i> Microphone
-                        </label>
-                        <select id="microphone-select" class="form-control">
-                            <option value="">Detecting microphones...</option>
-                        </select>
-                    </div>
-
-                    <!-- File Upload -->
-                    <div class="control-group">
-                        <label for="audio-file">
-                            <i class="fas fa-file-audio"></i> Upload Audio
-                        </label>
-                        <div class="file-upload-wrapper">
-                            <input type="file" id="audio-file" accept="audio/*" class="file-input">
-                            <label for="audio-file" class="file-upload-btn">
-                                <i class="fas fa-upload"></i>
-                                Choose File
-                            </label>
-                            <span class="file-name" id="file-name">No file chosen</span>
-                        </div>
-                    </div>
-
-                    <!-- Recording Controls -->
-                    <div class="control-group recording-controls">
-                        <button id="start-recording" class="btn btn-primary">
-                            <i class="fas fa-play"></i>
-                            Start Recording
-                        </button>
-                        <button id="stop-recording" class="btn btn-danger" disabled>
-                            <i class="fas fa-stop"></i>
-                            Stop Recording
-                        </button>
-                        <button id="transcribe-file" class="btn btn-secondary" disabled>
-                            <i class="fas fa-file-alt"></i>
-                            Transcribe File
-                        </button>
-                    </div>
-
-                    <!-- Recording Status -->
-                    <div class="recording-status" id="recording-status">
-                        <div class="status-indicator">
-                            <i class="fas fa-circle"></i>
-                            <span>Ready</span>
-                        </div>
-                        <div class="recording-timer" id="recording-timer">00:00</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Main Dashboard -->
-            <div class="dashboard-grid">
-                <!-- Transcription Section -->
-                <section class="transcription-section">
-                    <div class="section-header">
-                        <h2><i class="fas fa-file-alt"></i> Live Transcription</h2>
-                        <div class="section-actions">
-                            <button id="clear-transcript" class="btn btn-outline">
-                                <i class="fas fa-trash"></i>
-                                Clear
-                            </button>
-                            <button id="export-transcript" class="btn btn-outline">
-                                <i class="fas fa-download"></i>
-                                Export
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="transcription-content">
-                        <div class="transcript-display" id="transcript-display">
-                            <div class="placeholder">
-                                <i class="fas fa-microphone-alt"></i>
-                                <p>Start recording or upload an audio file to begin transcription</p>
-                            </div>
-                        </div>
-                        
-                        <div class="transcription-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Words:</span>
-                                <span class="stat-value" id="word-count">0</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Processing:</span>
-                                <span class="stat-value" id="processing-time">0.00s</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Confidence:</span>
-                                <div class="confidence-bar">
-                                    <div class="confidence-fill" id="confidence-fill"></div>
-                                    <span class="confidence-text" id="confidence-text">0%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- AI Assistant Section -->
-                <section class="ai-assistant-section">
-                    <div class="section-header">
-                        <h2><i class="fas fa-robot"></i> AI Assistant</h2>
-                        <div class="ai-status" id="ai-status">
-                            <i class="fas fa-circle"></i>
-                            <span>Ready</span>
-                        </div>
-                    </div>
-
-                    <div class="ai-tabs">
-                        <button class="tab-btn active" data-tab="summary">
-                            <i class="fas fa-list"></i>
-                            Summary
-                        </button>
-                        <button class="tab-btn" data-tab="suggestions">
-                            <i class="fas fa-lightbulb"></i>
-                            Suggestions
-                        </button>
-                    </div>
-
-                    <!-- Summary Tab -->
-                    <div class="ai-content" id="summary-tab">
-                        <div class="summary-display" id="summary-display">
-                            <div class="placeholder">
-                                <i class="fas fa-magic"></i>
-                                <p>AI-powered summary will appear here after transcription</p>
-                            </div>
-                        </div>
-
-                        <div class="summary-sections" id="summary-sections" style="display: none;">
-                            <div class="summary-section">
-                                <h4><i class="fas fa-clipboard-list"></i> Overview</h4>
-                                <div class="summary-overview" id="summary-overview"></div>
-                            </div>
-                            
-                            <div class="summary-section">
-                                <h4><i class="fas fa-key"></i> Key Points</h4>
-                                <ul class="key-points-list" id="key-points-list"></ul>
-                            </div>
-                            
-                            <div class="summary-section">
-                                <h4><i class="fas fa-tasks"></i> Action Items</h4>
-                                <ul class="action-items-list" id="action-items-list"></ul>
-                            </div>
-                        </div>
-
-                        <button id="generate-summary" class="btn btn-primary" style="margin-top: 1rem;" disabled>
-                            <i class="fas fa-magic"></i>
-                            Generate Summary
-                        </button>
-                    </div>
-
-                    <!-- Suggestions Tab -->
-                    <div class="ai-content" id="suggestions-tab" style="display: none;">
-                        <div class="suggestions-display" id="suggestions-display">
-                            <div class="placeholder">
-                                <i class="fas fa-comments"></i>
-                                <p>Smart response suggestions will appear here</p>
-                            </div>
-                        </div>
-
-                        <button id="get-suggestions" class="btn btn-primary" style="margin-top: 1rem;" disabled>
-                            <i class="fas fa-lightbulb"></i>
-                            Get Suggestions
-                        </button>
-                    </div>
-                </section>
+                <textarea class="textarea transcript-area" id="transcriptArea" readonly placeholder="Transcription will appear here..."></textarea>
             </div>
 
-            <!-- System Health Section -->
-            <section class="system-health">
-                <div class="section-header">
-                    <h2><i class="fas fa-heartbeat"></i> System Health</h2>
-                    <button id="refresh-health" class="btn btn-outline btn-sm">
-                        <i class="fas fa-sync-alt"></i>
-                        Refresh
-                    </button>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Summary</h3>
+                    <span class="card-meta" id="summaryTime"></span>
                 </div>
-
-                <div class="health-grid">
-                    <div class="health-card">
-                        <div class="health-icon">
-                            <i class="fas fa-server"></i>
-                        </div>
-                        <div class="health-info">
-                            <h4>Backend Status</h4>
-                            <span class="health-status" id="backend-health">Checking...</span>
-                        </div>
-                    </div>
-
-                    <div class="health-card">
-                        <div class="health-icon">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <div class="health-info">
-                            <h4>OpenAI Models</h4>
-                            <span class="health-status" id="models-health">Checking...</span>
-                        </div>
-                    </div>
-
-                    <div class="health-card">
-                        <div class="health-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="health-info">
-                            <h4>Uptime</h4>
-                            <span class="health-status" id="uptime-display">0:00:00</span>
-                        </div>
-                    </div>
-
-                    <div class="health-card">
-                        <div class="health-icon">
-                            <i class="fas fa-tachometer-alt"></i>
-                        </div>
-                        <div class="health-info">
-                            <h4>Performance</h4>
-                            <span class="health-status" id="performance-display">Good</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <p>&copy; 2025 recaply.AI Desktop Widget</p>
-                </div>
-                <div class="footer-section">
-                    <div class="footer-stats">
-                        <span>Chunks Processed: <strong id="chunks-processed">0</strong></span>
-                        <span>Total Words: <strong id="total-words">0</strong></span>
-                        <span>Session Time: <strong id="session-time">00:00:00</strong></span>
-                    </div>
-                </div>
+                <textarea class="textarea" id="summaryArea" readonly placeholder="Summary will be generated..."></textarea>
             </div>
-        </footer>
-    </div>
+        </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h3>Processing...</h3>
-            <p id="loading-message">Initializing Recaply.AI...</p>
+        <div class="card suggestion-card">
+            <div class="card-header">
+                <h3>Response Suggestion</h3>
+                <span class="card-meta" id="confidenceLevel"></span>
+            </div>
+            <textarea class="textarea" id="suggestionArea" readonly placeholder="AI suggestions will appear here..."></textarea>
+        </div>
+
+        <div class="footer">
+            <p>Nova.AI v2.1 - Powered by Groq | <span id="performanceStats"></span></p>
         </div>
     </div>
 
-    <!-- Notification Toast -->
-    <div class="toast-container" id="toast-container"></div>
+    <script>
+        class NovaWebInterface {
+            constructor() {
+                this.isRecording = false;
+                this.isProcessing = false;
+                this.mediaRecorder = null;
+                this.audioChunks = [];
+                this.fullTranscript = '';
+                this.chunkCounter = 0;
+                this.backendUrl = this.detectBackendUrl();
+                this.recordingStartTime = null;
+                
+                // Audio analysis
+                this.audioContext = null;
+                this.analyser = null;
+                this.dataArray = null;
+                
+                this.micStream = null;
+                this.systemStream = null;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.checkBackendConnection();
+                this.loadMicrophones();
+                this.createWaveVisualization();
+            }
 
-    <script src="script.js"></script>
+            detectBackendUrl() {
+                // Backend URL configuration
+                const possibleUrls = [
+                    "https://recaply-ai.onrender.com",  // Your production backend
+                    'http://localhost:8000',  // Local development fallback
+                    window.location.origin
+                ];
+                // Use production backend URL
+                return possibleUrls[0];
+            }
+
+            initializeElements() {
+                this.elements = {
+                    recordButton: document.getElementById('recordButton'),
+                    clearButton: document.getElementById('clearButton'),
+                    micSelect: document.getElementById('micSelect'),
+                    captureSystem: document.getElementById('captureSystem'),
+                    transcriptArea: document.getElementById('transcriptArea'),
+                    summaryArea: document.getElementById('summaryArea'),
+                    suggestionArea: document.getElementById('suggestionArea'),
+                    chunkCounter: document.getElementById('chunkCounter'),
+                    summaryTime: document.getElementById('summaryTime'),
+                    confidenceLevel: document.getElementById('confidenceLevel'),
+                    mainStatus: document.getElementById('mainStatus'),
+                    connectionStatus: document.getElementById('connectionStatus'),
+                    connectionDot: document.getElementById('connectionDot'),
+                    progressContainer: document.getElementById('progressContainer'),
+                    progressBar: document.getElementById('progressBar'),
+                    errorMessage: document.getElementById('errorMessage'),
+                    successMessage: document.getElementById('successMessage'),
+                    performanceStats: document.getElementById('performanceStats'),
+                    waveVisualization: document.getElementById('waveVisualization'),
+                    waveBars: document.getElementById('waveBars')
+                };
+            }
+
+            setupEventListeners() {
+                this.elements.recordButton.addEventListener('click', () => this.toggleRecording());
+                this.elements.clearButton.addEventListener('click', () => this.clearAll());
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'r') {
+                        e.preventDefault();
+                        this.toggleRecording();
+                    }
+                    if (e.ctrlKey && e.key === 'c') {
+                        e.preventDefault();
+                        this.clearAll();
+                    }
+                });
+            }
+
+            async checkBackendConnection() {
+                try {
+                    const response = await fetch(`${this.backendUrl}/health`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.updateConnectionStatus('Connected', true);
+                        this.showSuccess(`Backend connected - ${data.status} (v${data.version || '2.1.0'})`);
+                    } else {
+                        this.updateConnectionStatus('Service Issues', false);
+                        this.showError('Backend service has issues');
+                    }
+                } catch (error) {
+                    console.error('Backend connection error:', error);
+                    this.updateConnectionStatus('Disconnected', false);
+                    this.showError('Cannot connect to backend service');
+                }
+            }
+
+            async loadMicrophones() {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const audioInputs = devices.filter(device => device.kind === 'audioinput');
+                    
+                    this.elements.micSelect.innerHTML = '';
+                    
+                    // Add 'No Microphone' option
+                    const noMicOption = document.createElement('option');
+                    noMicOption.value = '';
+                    noMicOption.textContent = 'No Microphone';
+                    this.elements.micSelect.appendChild(noMicOption);
+                    
+                    if (audioInputs.length === 0) {
+                        return;
+                    }
+                    
+                    audioInputs.forEach((device, index) => {
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        option.textContent = device.label || `Microphone ${index + 1}`;
+                        this.elements.micSelect.appendChild(option);
+                    });
+                    
+                } catch (error) {
+                    console.error('Error loading microphones:', error);
+                    this.elements.micSelect.innerHTML = '<option value="">Error loading devices</option>';
+                }
+            }
+
+            createWaveVisualization() {
+                // Create wave bars for visualization
+                for (let i = 0; i < 32; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'wave-bar';
+                    bar.style.height = '4px';
+                    this.elements.waveBars.appendChild(bar);
+                }
+            }
+
+            updateWaveVisualization() {
+                if (!this.analyser || !this.dataArray) return;
+                
+                this.analyser.getByteFrequencyData(this.dataArray);
+                const bars = this.elements.waveBars.children;
+                
+                for (let i = 0; i < bars.length; i++) {
+                    const value = this.dataArray[i] || 0;
+                    const height = Math.max(2, (value / 255) * 40);
+                    bars[i].style.height = `${height}px`;
+                }
+                
+                if (this.isRecording) {
+                    requestAnimationFrame(() => this.updateWaveVisualization());
+                }
+            }
+
+            async toggleRecording() {
+                if (this.isRecording) {
+                    await this.stopRecording();
+                } else {
+                    await this.startRecording();
+                }
+            }
+
+            async startRecording() {
+                try {
+                    const selectedDeviceId = this.elements.micSelect.value;
+                    const captureSystem = this.elements.captureSystem.checked;
+
+                    if (!selectedDeviceId && !captureSystem) {
+                        this.showError('Please select a microphone or enable speaker audio capture');
+                        return;
+                    }
+
+                    this.micStream = null;
+                    if (selectedDeviceId) {
+                        const micConstraints = {
+                            audio: {
+                                deviceId: { exact: selectedDeviceId },
+                                sampleRate: 16000,
+                                channelCount: 1
+                            }
+                        };
+                        this.micStream = await navigator.mediaDevices.getUserMedia(micConstraints);
+                    }
+
+                    this.systemStream = null;
+                    if (captureSystem) {
+                        this.systemStream = await navigator.mediaDevices.getDisplayMedia({
+                            audio: {
+                                sampleRate: 16000,
+                                channelCount: 1
+                            },
+                            video: true  // Required to enable audio capture
+                        });
+                        // Immediately stop video tracks
+                        this.systemStream.getVideoTracks().forEach(track => track.stop());
+                    }
+
+                    if (!this.micStream && !this.systemStream) {
+                        throw new Error('No audio sources available');
+                    }
+
+                    // Setup audio context and mixing
+                    this.audioContext = new AudioContext({ sampleRate: 16000 });
+                    this.analyser = this.audioContext.createAnalyser();
+                    this.analyser.fftSize = 256;
+                    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+
+                    const destination = this.audioContext.createMediaStreamDestination();
+
+                    let analysisSource = null;
+
+                    if (this.micStream) {
+                        const micSource = this.audioContext.createMediaStreamSource(this.micStream);
+                        micSource.connect(destination);
+                        analysisSource = micSource;
+                    }
+
+                    if (this.systemStream) {
+                        const systemSource = this.audioContext.createMediaStreamSource(this.systemStream);
+                        systemSource.connect(destination);
+                        if (!analysisSource) {
+                            analysisSource = systemSource;
+                        }
+                    }
+
+                    if (analysisSource) {
+                        analysisSource.connect(this.analyser);
+                    }
+
+                    const mixedStream = destination.stream;
+
+                    this.mediaRecorder = new MediaRecorder(mixedStream, {
+                        mimeType: 'audio/webm;codecs=opus'
+                    });
+                    
+                    this.audioChunks = [];
+                    this.isRecording = true;
+                    this.recordingStartTime = Date.now();
+                    this.chunkCounter = 0;
+                    
+                    this.mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            this.audioChunks.push(event.data);
+                        }
+                    };
+                    
+                    this.mediaRecorder.onstop = () => {
+                        this.processAudioChunk();
+                    };
+                    
+                    // Record in 5-second chunks
+                    this.mediaRecorder.start();
+                    this.recordingInterval = setInterval(() => {
+                        if (this.isRecording && this.mediaRecorder.state === 'recording') {
+                            this.mediaRecorder.stop();
+                            setTimeout(() => {
+                                if (this.isRecording) {
+                                    this.audioChunks = [];
+                                    this.mediaRecorder.start();
+                                }
+                            }, 100);
+                        }
+                    }, 5000);
+                    
+                    this.updateUI('recording');
+                    this.elements.waveVisualization.style.display = 'flex';
+                    this.updateWaveVisualization();
+                    
+                } catch (error) {
+                    console.error('Error starting recording:', error);
+                    this.showError(`Failed to start recording: ${error.message}`);
+                }
+            }
+
+            async stopRecording() {
+                this.isRecording = false;
+                
+                if (this.recordingInterval) {
+                    clearInterval(this.recordingInterval);
+                }
+                
+                if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+                    this.mediaRecorder.stop();
+                }
+                
+                if (this.micStream) {
+                    this.micStream.getTracks().forEach(track => track.stop());
+                    this.micStream = null;
+                }
+                
+                if (this.systemStream) {
+                    this.systemStream.getTracks().forEach(track => track.stop());
+                    this.systemStream = null;
+                }
+                
+                if (this.audioContext) {
+                    await this.audioContext.close();
+                    this.audioContext = null;
+                }
+                
+                this.updateUI('ready');
+                this.elements.waveVisualization.style.display = 'none';
+            }
+
+            async processAudioChunk() {
+                if (this.audioChunks.length === 0) return;
+                
+                this.showProgress(true);
+                this.updateStatus('Processing...', 'processing');
+                
+                try {
+                    const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                    const formData = new FormData();
+                    formData.append('audio', audioBlob, 'chunk.webm');
+                    
+                    const startTime = Date.now();
+                    const response = await fetch(`${this.backendUrl}/transcribe`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(`HTTP ${response.status}: ${errorData.detail || response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    const processingTime = Date.now() - startTime;
+                    
+                    if (data.text && data.text.trim()) {
+                        this.chunkCounter++;
+                        const timestamp = new Date().toLocaleTimeString();
+                        this.fullTranscript += ` [${timestamp}] ${data.text.trim()}`;
+                        
+                        this.updateTranscript();
+                        this.elements.chunkCounter.textContent = `Chunks: ${this.chunkCounter}`;
+                        
+                        // Update performance stats
+                        this.elements.performanceStats.textContent = `Processing: ${processingTime}ms | Cached: ${data.cached || false}`;
+                        
+                        // Process summary and suggestions if enough content
+                        if (data.text.trim().length > 50) {
+                            this.processNLPTasks();
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Transcription error:', error);
+                    this.showError(`Transcription failed: ${error.message}`);
+                } finally {
+                    this.showProgress(false);
+                    if (this.isRecording) {
+                        this.updateStatus('Recording...', 'recording');
+                    } else {
+                        this.updateStatus('Ready', 'ready');
+                    }
+                }
+            }
+
+            async processNLPTasks() {
+                try {
+                    // Only process if we have enough content
+                    if (this.fullTranscript.trim().length < 50) return;
+
+                    // Process summary and suggestions concurrently
+                    const [summaryPromise, suggestionPromise] = await Promise.allSettled([
+                        this.getSummary(),
+                        this.getSuggestion()
+                    ]);
+                    
+                    if (summaryPromise.status === 'fulfilled') {
+                        this.updateSummaryDisplay(summaryPromise.value);
+                    } else {
+                        console.warn('Summary failed:', summaryPromise.reason);
+                    }
+                    
+                    if (suggestionPromise.status === 'fulfilled') {
+                        this.updateSuggestionDisplay(suggestionPromise.value);
+                    } else {
+                        console.warn('Suggestion failed:', suggestionPromise.reason);
+                    }
+                    
+                } catch (error) {
+                    console.error('NLP processing error:', error);
+                }
+            }
+
+            async getSummary() {
+                const response = await fetch(`${this.backendUrl}/summarize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: this.fullTranscript.trim() })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Summary failed: ${response.status} - ${errorData.detail || response.statusText}`);
+                }
+                
+                return await response.json();
+            }
+
+            async getSuggestion() {
+                const response = await fetch(`${this.backendUrl}/suggest_response`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: this.fullTranscript.trim() })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Suggestion failed: ${response.status} - ${errorData.detail || response.statusText}`);
+                }
+                
+                return await response.json();
+            }
+
+            updateTranscript() {
+                this.elements.transcriptArea.value = this.fullTranscript;
+                this.elements.transcriptArea.scrollTop = this.elements.transcriptArea.scrollHeight;
+            }
+
+            updateSummaryDisplay(data) {
+                let formattedSummary = data.summary || '';
+                
+                if (data.key_points && data.key_points.length > 0) {
+                    formattedSummary += '\n\n📋 Key Points:\n' + data.key_points.map(point => `• ${point}`).join('\n');
+                }
+                
+                if (data.action_items && data.action_items.length > 0) {
+                    formattedSummary += '\n\n✅ Action Items:\n' + data.action_items.map(item => `• ${item}`).join('\n');
+                }
+                
+                this.elements.summaryArea.value = formattedSummary;
+                this.elements.summaryTime.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+            }
+
+            updateSuggestionDisplay(data) {
+                const formattedSuggestion = `🎯 Context: ${data.context_identified}\n\n💡 Suggestion: ${data.suggestion}`;
+                this.elements.suggestionArea.value = formattedSuggestion;
+                
+                const confidence = data.confidence || 'Medium';
+                const colors = { High: '#10b981', Medium: '#f59e0b', Low: '#ef4444' };
+                this.elements.confidenceLevel.textContent = `Confidence: ${confidence}`;
+                this.elements.confidenceLevel.style.color = colors[confidence] || '#64748b';
+            }
+
+            clearAll() {
+                if (this.fullTranscript.trim() && !confirm('Are you sure you want to clear all content?')) {
+                    return;
+                }
+                
+                this.fullTranscript = '';
+                this.chunkCounter = 0;
+                
+                this.elements.transcriptArea.value = '';
+                this.elements.summaryArea.value = '';
+                this.elements.suggestionArea.value = '';
+                this.elements.chunkCounter.textContent = 'Chunks: 0';
+                this.elements.summaryTime.textContent = '';
+                this.elements.confidenceLevel.textContent = '';
+                
+                this.showSuccess('All content cleared');
+            }
+
+            updateUI(mode) {
+                if (mode === 'recording') {
+                    this.elements.recordButton.textContent = 'Stop Recording';
+                    this.elements.recordButton.className = 'btn btn-stop';
+                    this.updateStatus('Recording...', 'recording');
+                } else {
+                    this.elements.recordButton.textContent = 'Start Recording';
+                    this.elements.recordButton.className = 'btn btn-start';
+                    this.updateStatus('Ready', 'ready');
+                }
+            }
+
+            updateStatus(text, type) {
+                this.elements.mainStatus.textContent = text;
+                this.elements.mainStatus.className = `main-status status-${type}`;
+            }
+
+            updateConnectionStatus(text, connected) {
+                this.elements.connectionStatus.textContent = `Backend: ${text}`;
+                this.elements.connectionDot.className = `status-dot${connected ? '' : ' disconnected'}`;
+            }
+
+            showProgress(show) {
+                if (show) {
+                    this.elements.progressContainer.style.display = 'block';
+                    this.elements.progressBar.className = 'progress-bar progress-indeterminate';
+                } else {
+                    this.elements.progressContainer.style.display = 'none';
+                    this.elements.progressBar.className = 'progress-bar';
+                }
+            }
+
+            showError(message) {
+                this.elements.errorMessage.textContent = message;
+                this.elements.errorMessage.style.display = 'block';
+                this.elements.successMessage.style.display = 'none';
+                setTimeout(() => {
+                    this.elements.errorMessage.style.display = 'none';
+                }, 5000);
+            }
+
+            showSuccess(message) {
+                this.elements.successMessage.textContent = message;
+                this.elements.successMessage.style.display = 'block';
+                this.elements.errorMessage.style.display = 'none';
+                setTimeout(() => {
+                    this.elements.successMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.novaApp = new NovaWebInterface();
+        });
+    </script>
 </body>
 </html>
